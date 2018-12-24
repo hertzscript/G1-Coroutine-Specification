@@ -48,7 +48,7 @@ HertzScript implements two systems:
 
 Normally, coroutines are reserved for cooperative multitasking, but HertzScript implements a special type named voluntary preemptive multitasking. In regular cooperative-style programmers must declare points at which programs will yield, and HzScript extends this concept by automating it. Babel is used to transform all source code so that it is able to run concurrently, and Acorn is used to parse a special `spawn` keyword which acts as the primary interface to utilize that concurrency.
 
-The source code HzScript produces can be output in one of two forms:
+The source code which the compiler produces can be output in one of two forms:
 
 1. A self-running platform-agnostic JavaScript module which transparently integrates with existing software.
 
