@@ -40,7 +40,11 @@ This project is part of a larger effort to implement preemptively multitasked Gr
 
 ## High-Level Synopsis
 
-HertzScript implements two systems: A [coroutine compiler](https://github.com/Floofies/hertzscript-compiler) which consists of a [Babel](https://babeljs.io/) transformation plugin, an [Acorn](https://github.com/acornjs/acorn) parser plugin, and a [coroutine dispatcher](https://github.com/Floofies/hertzscript-dispatcher) with which to execute the resulting source code.
+HertzScript implements two systems:
+
+- A [coroutine compiler](https://github.com/Floofies/hertzscript-compiler) which consists of a [Babel](https://babeljs.io/) transformation plugin and an [Acorn](https://github.com/acornjs/acorn) parser plugin.
+
+- A [coroutine dispatcher](https://github.com/Floofies/hertzscript-dispatcher) which executes the resulting source code.
 
 Normally, coroutines are reserved for cooperative multitasking, but HertzScript implements a special type named voluntary preemptive multitasking. In regular cooperative-style programmers must declare points at which programs will yield, and HzScript extends this concept by automating it. Babel is used to transform all source code so that it is able to run concurrently, and Acorn is used to parse a special `spawn` keyword which acts as the primary interface to utilize that concurrency.
 
