@@ -1,0 +1,22 @@
+{
+	"name": "hertzscript-specification",
+	"version": "1.0.0",
+	"description": "A specification which describes automatic coroutine systems for JavaScript.",
+	"homepage": "https://github.com/hertzscript/Specification#readme",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/hertzscript/Specification.git"
+	},
+	"bugs": {
+		"url": "https://github.com/hertzscript/Specification/issues"
+	},
+	"author": "Dani Glore (https://github.com/Floofies)",
+	"scripts": {
+		"spec-md": "node ./node_modules/spec-md/bin/spec-md",
+		"build": "./build.sh",
+		"prepublishonly": "npm run build"
+	},
+	"devDependencies": {
+		"spec-md": ""
+	}
+}
