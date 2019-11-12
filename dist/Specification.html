@@ -887,91 +887,300 @@ Add sequence and dependency graphs.</div>
 <li><a href="#sec-Overview-of-Components"><span class="spec-secid">1.1</span>Overview of Components</a></li>
 </ol>
 </li>
-<li><a href="#sec-Theory-of-Operation"><span class="spec-secid">2</span>Theory of Operation</a>
+<li><a href="#sec-Compiler"><span class="spec-secid">2</span>Compiler</a>
 <input hidden class="toggle" type="checkbox" checked id="_toggle_2" /><label for="_toggle_2"></label>
 <ol>
-<li><a href="#sec-Compiler"><span class="spec-secid">2.1</span>Compiler</a></li>
-<li><a href="#sec-Function-Detours"><span class="spec-secid">2.2</span>Function Detours</a></li>
-<li><a href="#sec-Instruction-Tokens"><span class="spec-secid">2.3</span>Instruction Tokens</a></li>
-<li><a href="#sec-Virtual-Machine"><span class="spec-secid">2.4</span>Virtual Machine</a></li>
-<li><a href="#sec-Dispatcher"><span class="spec-secid">2.5</span>Dispatcher</a></li>
-<li><a href="#sec-Programming-Environment"><span class="spec-secid">2.6</span>Programming Environment</a></li>
+<li><a href="#sec-Transformation-Functions"><span class="spec-secid">2.1</span>Transformation Functions</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_2.1" /><label for="_toggle_2.1"></label>
+<ol>
+<li><a href="#sec-HzCoroutine"><span class="spec-secid">2.1.1</span>HzCoroutine</a></li>
 </ol>
 </li>
+<li><a href="#sec-Visitor-Functions"><span class="spec-secid">2.2</span>Visitor Functions</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_2.2" /><label for="_toggle_2.2"></label>
+<ol>
+<li><a href="#sec-CallExpression"><span class="spec-secid">2.2.1</span>CallExpression</a></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><a href="#sec-DetourLib"><span class="spec-secid">3</span>DetourLib</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_3" /><label for="_toggle_3"></label>
+<ol>
+<li><a href="#sec-Detour-Hooking-Functions"><span class="spec-secid">3.1</span>Detour Hooking Functions</a></li>
+</ol>
+</li>
+<li><a href="#sec-Kernelizer"><span class="spec-secid">4</span>Kernelizer</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_4" /><label for="_toggle_4"></label>
+<ol>
+<li><a href="#sec-Kernelizer.Constructor"><span class="spec-secid">4.1</span>Constructor</a></li>
+<li><a href="#sec-Prototype-Methods"><span class="spec-secid">4.2</span>Prototype Methods</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_4.2" /><label for="_toggle_4.2"></label>
+<ol>
+<li><a href="#sec-reset"><span class="spec-secid">4.2.1</span>reset</a></li>
+<li><a href="#sec-set"><span class="spec-secid">4.2.2</span>set</a></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><a href="#sec-InstructionToken"><span class="spec-secid">5</span>InstructionToken</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_5" /><label for="_toggle_5"></label>
+<ol>
+<li><a href="#sec-InstructionToken.Constructor"><span class="spec-secid">5.1</span>Constructor</a></li>
+</ol>
+</li>
+<li><a href="#sec-TokenLib"><span class="spec-secid">6</span>TokenLib</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_6" /><label for="_toggle_6"></label>
+<ol>
+<li><a href="#sec-Object-Methods"><span class="spec-secid">6.1</span>Object Methods</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_6.1" /><label for="_toggle_6.1"></label>
+<ol>
+<li><a href="#sec-isKernelized"><span class="spec-secid">6.1.1</span>isKernelized</a></li>
+</ol>
+</li>
+<li><a href="#sec-Object-Properties"><span class="spec-secid">6.2</span>Object Properties</a>
+<input hidden class="toggle" type="checkbox" checked id="_toggle_6.2" /><label for="_toggle_6.2"></label>
+<ol>
+<li><a href="#sec-tokens"><span class="spec-secid">6.2.1</span>tokens</a></li>
+<li><a href="#sec-symbols"><span class="spec-secid">6.2.2</span>symbols</a></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><a href="#sec-UserLib"><span class="spec-secid">7</span>UserLib</a></li>
+<li><a href="#sec-VirtualMachine"><span class="spec-secid">8</span>VirtualMachine</a></li>
+<li><a href="#sec-Dispatcher"><span class="spec-secid">9</span>Dispatcher</a></li>
+<li><a href="#sec-Programming-Environment"><span class="spec-secid">10</span>Programming Environment</a></li>
+<li><a href="#index"><span class="spec-secid">§</span>Index</a></li>
 </ol>
 </nav>
 </header>
 <section id="sec-High-Level-Synopsis" secid="1">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-High-Level-Synopsis">1</a></span>High-Level Synopsis</h2>
-<p>HertzScript (abbreviated &ldquo;HzScript&rdquo;) transforms JavaScript functions into stackless coroutines which can be preempted, and provides a degree of concurrency which is more fine&#8208;grained than traditional JavaScript. Normal functions must run from beginning to end due to the single&#8208;threaded nature of JavaScript, but HertzScript allows you to automatically preempt and context switch between several functions; software developers may utilize this concurrency via a new <code>spawn</code> keyword. If you call a function which is preceded by the <code>spawn</code> keyword, then the function will run concurrently alongside any other functions and the caller function.</p>
-<p>Coroutines are normally reserved for cooperative multitasking, but HertzScript implements a special variant called voluntary preemptive multitasking. In regular cooperative programs the software developer must manually declare the points at which programs will yield, and HertzScript extends that concept by automating it at every function call and loop.</p>
+<p>HertzScript (abbreviated &ldquo;HzScript&rdquo;) automatically transforms JavaScript functions into stackless coroutines which can be preempted, and provides a degree of concurrency which is more fine&#8208;grained than what you get with traditional JavaScript. Normally functions must run from beginning to end due to the single&#8208;threaded nature of JavaScript, but HertzScript automatically pauses and context switches between several functions mid&#8208;execution. Software developers may utilize HertzScript&rsquo;s concurrency via a new <code>spawn</code> keyword. If you call a function which is preceded by the <code>spawn</code> keyword, then the function will run concurrently alongside any other functions and the caller function.</p>
+<p>Coroutines are normally reserved for cooperative multitasking and have to be manually implemented by software developers, requiring them to manage control yielding and reentry points. HertzScript implements voluntary preemptive multitasking which is a compiler&#8208;managed variant of cooperative multitasking, and it does not require the developer to manually implement control yielding or reentry points.</p>
 <section id="sec-Overview-of-Components" secid="1.1">
 <h3><span class="spec-secid" title="link to this section"><a href="#sec-Overview-of-Components">1.1</a></span>Overview of Components</h3>
 <p>HertzScript is composed of layered abstracting and interoperating systems including a compiler, virtual machine, multitasking dispatcher, and programming environment. Each component can be used either independently or as part of a higher&#8208;level abstracting component. The lowest&#8208;level foundational components are the compiler and the virtual machine.</p>
 <p><img src="http://g.gravizo.com/svg?%0A%09digraph%20Components%20%7B%0A%09%09Compiler%20%5Bshape=box%5D;%0A%09%09VirtualMachine%20%5Bshape=box%5D;%0A%09%09Dispatcher%20%5Bshape=box%5D;%0A%09%09Environment%20%5Bshape=box%5D;%0A%09%09Compiler%20-%3E%20VirtualMachine;%0A%09%09VirtualMachine%20-%3E%20Dispatcher;%0A%09%09Dispatcher%20-%3E%20Environment;%0A%09%09%7B%0A%09%09%09rank=same;%20Compiler%20VirtualMachine%20Dispatcher%20Environment%0A%09%09%7D%0A%09%7D%0A" alt="Component Diagram"/></p>
 </section>
 </section>
-<section id="sec-Theory-of-Operation" secid="2">
-<h2><span class="spec-secid" title="link to this section"><a href="#sec-Theory-of-Operation">2</a></span>Theory of Operation</h2>
-<section id="sec-Compiler" secid="2.1">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Compiler">2.1</a></span>Compiler</h3>
-<p>The HertzScript compiler uses a multi&#8208;stage source&#8208;to&#8208;source compilation pipeline to transform JavaScript functions into instruction streams; all functions within a HzScript program are GeneratorFunctions which yield instructions. Residing the bottom abstraction level of the system, the HertzScript compiler serves as a fundamental mechanism in the creation of re&#8208;entrant programs.</p>
-<p>The first stage in the compilation pipeline consists of Acorn, an Acorn parser plugin, and Acorn&#8208;Walk, which are used to parse and transform any <code>SpawnExpression</code> to a regular method call for Babel to recognize in the second stage. <code>spawn</code> is a contextual keyword which could also be a regular method call and not a <code>SpawnExpression</code>, so the parser looks for any instance of the <code>spawn</code> keyword followed by any number of spaces and an identifier character.</p>
+<section id="sec-Compiler" secid="2">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-Compiler">2</a></span>Compiler</h2>
+<p>The HertzScript compiler transforms function calls into yielded instances of <code>InstructionToken</code> such that all transformed function calls are made in reverse upon script execution.</p>
+<p>The HertzScript compiler uses a multi&#8208;stage source&#8208;to&#8208;source compilation process to transform JavaScript functions into instruction streams; all functions within a HzScript program are GeneratorFunctions which yield instructions. Residing the bottom abstraction level of the system, the HertzScript compiler serves as a fundamental mechanism in the creation of re&#8208;entrant programs.</p>
+<p>The first stage in the compilation process consists of Acorn, an Acorn parser plugin, and Acorn&#8208;Walk, which are used to parse and transform any <code>SpawnExpression</code> to a regular method call for Babel to recognize in the second stage. <code>spawn</code> is a contextual keyword which could also be a regular method call and not a <code>SpawnExpression</code>, so the parser looks for any instance of the <code>spawn</code> keyword followed by any number of spaces and an identifier character.</p>
 <p>The second stage consists of Babel and a Babel transformation plugin which is used to transform all function expressions/statements into GeneratorFunctions, and wrap all functions in detour hooking functions. Within the new GeneratorFunctions all CallExpressions, NewExpressions, ReturnStatements, YieldExpressions, and SpawnExpressions are transformed into yielded instruction tokens. A special token named <code>loopYield</code> is added to the beginning of each loop to ensure that they are interruptable.</p>
+<section id="sec-Transformation-Functions" secid="2.1">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Transformation-Functions">2.1</a></span>Transformation Functions</h3>
+<section id="sec-HzCoroutine" secid="2.1.1">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-HzCoroutine">2.1.1</a></span>HzCoroutine</h4>
 </section>
-<section id="sec-Function-Detours" secid="2.2">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Function-Detours">2.2</a></span>Function Detours</h3>
-<p>The Babel transformation plugin wraps all functions and function calls in detouring functions, and the detour library is a collection of function hooks designed to detour specific types of functions.</p>
-<ul>
-<li><code>hookCoroutine</code> detours a function.</li>
-<li><code>hookArrowCoroutine</code> detours an <code>ArrowFunctionExpression</code>.</li>
-<li><code>hookGenerator</code> detours a <code>GeneratorFunction</code>.</li>
-<li><code>hookIterator</code> detours an iterator interface object&rsquo;s <code>next</code>, <code>return</code>, and <code>throw</code> methods.</li>
-</ul>
-<p>All detours insert a hooking function which replaces the original function with a special invocation adapter. Upon invoking the adapter a new HertzScript virtual machine is started in&#8208;place, and the original function is run from within it. The original function is assigned to a Symbol property named <code>tokenSym</code>. Each hook marks the detour and original function with special markers symbols which allow the virtual machine to observe information that would originally only be visible at compile&#8208;time.</p>
-<ul>
-<li><code>tokenSym</code> is assigned as a property which points to the original function.</li>
-<li><code>crtSym</code> marks a function as a coroutine.</li>
-<li><code>conSym</code> marks a function as a constructor coroutine.</li>
-<li><code>genSym</code> marks a function as a generator.</li>
-<li><code>iterSym</code> marks a function as belonging to an iterator interface object.</li>
-</ul>
 </section>
-<section id="sec-Instruction-Tokens" secid="2.3">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Instruction-Tokens">2.3</a></span>Instruction Tokens</h3>
-<p>The HertzScript instruction set is a list of &ldquo;instruction tokens&rdquo; and is composed of Kernelizer objects, which are generic objects designed to safely wrap user data. Some instruction tokens accept arguments in an array which are assigned to properties in itself via a <code>set</code> method. All tokens are gauranteed to only be in&#8208;use during 1 cycle because the virtual machine executes in a single thread, and so each instruction token is a single&#8208;instance uniqueness type to reduce memory overhead.</p>
-<p>All instruction tokens are marked by having a special symbol assigned to them called <code>kernSym</code>, and if the virtual machine determines that an object has the symbol as a property then it assumes that the object is an instruction token and attempts to process it.</p>
-<p>Instruction tokens are classified by two types:</p>
-<p><code>loopYield</code> is a special token which is used to interrupt loops, and does not wrap user datum or invoke any functions.</p>
+<section id="sec-Visitor-Functions" secid="2.2">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Visitor-Functions">2.2</a></span>Visitor Functions</h3>
+<section id="sec-CallExpression" secid="2.2.1">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-CallExpression">2.2.1</a></span>CallExpression</h4>
+</section>
+</section>
+</section>
+<section id="sec-DetourLib" secid="3">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-DetourLib">3</a></span>DetourLib</h2>
+<p>The Babel transformation plugin wraps all function declarations and expressions in detouring functions, and the detour library is a collection of function hooks designed to detour specific types of functions.</p>
+<p>Detour functions insert a hooking function which replaces the original function with a special invocation adapter. Upon invoking the adapter a new HertzScript virtual machine is started in&#8208;place, and the original function is run from within it. The original function is assigned to a Symbol property named <code>tokenSym</code>. Each hooking function marks the detour function and original function with special marker Symbols which allow the virtual machine to observe information which would originally only be visible at compile&#8208;time.</p>
+<p>The below figure illustrates the path of control flow from a caller function to the original function after it has been detoured.</p>
+<p><img src="http://g.gravizo.com/svg?%0A%09digraph%20Components%20%7B%0A%09%09Caller%20%5Bshape=circle%5D;%0A%09%09Detour%20%5Bshape=box%5D;%0A%09%09VirtualMachine%20%5Bshape=box%5D;%0A%09%09tokenSym%20%5Bshape=box%5D;%0A%09%09Function%20%5Bshape=box%5D;%0A%09%09VirtualMachine%20%5Bshape=box%5D;%0A%09%09Caller%20-%3E%20Detour;%0A%09%09Detour%20-%3E%20tokenSym%20%5Bstyle=dotted%5D%20%5Barrowhead=empty%5D;%0A%09%09Detour%20-%3E%20VirtualMachine;%0A%09%09VirtualMachine%20-%3E%20tokenSym;%0A%09%09tokenSym%20-%3E%20Function;%0A%09%09%7B%0A%09%09%09rank=same;%20Caller%20Detour%20VirtualMachine;%0A%09%09%7D%0A%09%09%7B%0A%09%09%09rank=same;%20tokenSym%20Function%0A%09%09%7D%0A%09%7D%0A" alt="Component Diagram"/></p>
+<section id="sec-Detour-Hooking-Functions" secid="3.1">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Detour-Hooking-Functions">3.1</a></span>Detour Hooking Functions</h3>
+<p>Name|Arguments|Description -------------------------- <code>hookCoroutine</code> | | Detours a function. <code>hookArrowCoroutine</code> detours an <code>ArrowFunctionExpression</code>. <code>hookGenerator</code> detours a <code>GeneratorFunction</code>. <code>hookIterator</code> detours an iterator interface object&rsquo;s <code>next</code>, <code>return</code>, and <code>throw</code> methods.</p>
+</section>
+</section>
+<section id="sec-Kernelizer" secid="4">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-Kernelizer">4</a></span>Kernelizer</h2>
+<p>The <code>Kernelizer</code> class is a very simple object which assigns arbitrary values directly to itself. This class serves as the base class for the <code>InstructionToken</code> class.</p>
+<p>Strings given as an argument list to the constructor indicate the labels of arguments given in an Array via the <code>set</code> method, and can be reset with an arbitrary value via the <code>reset</code> method.</p>
+<section id="sec-Kernelizer.Constructor" secid="4.1">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Kernelizer.Constructor">4.1</a></span>Constructor</h3>
+<p>Assigns undefined to all properties ordered via an argument list of Strings spread to Array <code>argsArray</code>.</p>
+<p>Kernelizer(...argsArrray) :</p>
 <ol>
-<li><strong>Invocation Tokens</strong> wrap userland functors and any operands needed to invoke them.</li>
-<li><code>call</code> &amp; <code>callArgs</code> invoke a function with and without arguments.</li>
-<li><code>callMethod</code> &amp; <code>callMethodArgs</code> invoke a method.</li>
-<li><code>new</code> &amp; <code>newArgs</code> invoke a constructor.</li>
-<li><code>newMethod</code> &amp; <code>newMethodArgs</code> invoke a constructor from a method.</li>
-<li><code>spawn</code> &amp; <code>spawnArgs</code> spawn a new coroutine.</li>
-<li><code>spawnMethod</code> &amp; <code>spawnMethodArgs</code> spawn a new corotuine from a method.</li>
-<li><strong>Data Tokens</strong> wrap arbitrary userland datum, such as for <code>return</code> and <code>yield</code>.</li>
-<li><code>return</code> &amp; <code>returnValue</code> wraps a <code>return</code>.</li>
-<li><code>yield</code> &amp; <code>yieldValue</code> wraps a <code>yield</code>.</li>
+<li>Let property <code>argSlots</code> of <code>this</code> be <code>argsArray</code>.</li>
+<li>Invoke <code>this.reset()</code>.</li>
 </ol>
 </section>
-<section id="sec-Virtual-Machine" secid="2.4">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Virtual-Machine">2.4</a></span>Virtual Machine</h3>
-<p>To facilitate the aforementioned instruction stream transformations while preserving normal JavaScript execution, the HertzScript virtual machine implements the behaviors indicated by the instruction set and executes the compiled source code. The virtual machine consumes the instructions which are yielded by the compiled source code, performing the appropriate operations in response to each instruction. The HertzScript virtual machine is written in regular JavaScript which executes within the JavaScript virtual machine.</p>
-<p>The HertzScript virtual machine changes how the JavaScript virtual machine call stack is utilized. When a new coroutine is started, a new Coroutine Control Block is created for it which contains a virtual call stack, and the HertzScript instruction set corresponds with operations which push and pop the coroutines in that stack. Only the currently executing coroutine will reside within the JavaScript VM call stack.</p>
+<section id="sec-Prototype-Methods" secid="4.2">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Prototype-Methods">4.2</a></span>Prototype Methods</h3>
+<section id="sec-reset" secid="4.2.1">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-reset">4.2.1</a></span>reset</h4>
+<p>Assigns an arbitrary value <code>resetValue</code> to all properties ordered via Strings in Array <code>this.argSlots</code>.</p>
+<p>Kernelizer.prototype.reset(resetValue) :</p>
+<ol>
+<li>If <code>this.argSlots.length</code> is strictly equal to Number <code>0</code>, then<ul>
+<li>Return <code>this</code>.</li>
+</ul>
+</li>
+<li>For each <code>argName</code> of Array <code>this.argSlots</code>, do<ul>
+<li>Let dynamic property <code>argName</code> of <code>this</code> be <code>resetValue</code>.</li>
+</ul>
+</li>
+<li>Return <code>this</code>.</li>
+</ol>
+</section>
+<section id="sec-set" secid="4.2.2">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-set">4.2.2</a></span>set</h4>
+<p>Assigns arbitrary values in Array <code>argsArray</code> to properties ordered via Strings in Array <code>this.argSlots</code></p>
+<p>Kernelizer.prototype.set(argsArray) :</p>
+<ol>
+<li>If <code>this.argSlots.length</code> is strictly equal to Number <code>0</code>, then<ul>
+<li>Return <code>this</code>.</li>
+<li>Let <code>loc</code> be Number <code>0</code>.</li>
+</ul>
+</li>
+<li>For each <code>argName</code> of <code>this.argSlots</code>, do<ul>
+<li>If Number <code>loc</code> is less than or equal to Number <code>argsArray.length</code>, then<ul>
+<li>Let dynamic property <code>argName</code> of <code>this</code> be the value of dynamic property <code>loc</code> of <code>argsArray</code>.</li>
+</ul>
+</li>
+<li>Else let dynamic property <code>argName</code> of <code>this</code> be undefined.</li>
+<li>Increment Number <code>loc</code> by Number <code>1</code>.</li>
+</ul>
+</li>
+<li>Return <code>this</code>.</li>
+</ol>
+</section>
+</section>
+</section>
+<section id="sec-InstructionToken" secid="5">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-InstructionToken">5</a></span>InstructionToken</h2>
+<p>The <code>InstructionToken</code> class extends the <code>Kernelizer</code> class by assigning String <code>type</code> and Symbol <code>kernSym</code> to itself.</p>
+<section id="sec-InstructionToken.Constructor" secid="5.1">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-InstructionToken.Constructor">5.1</a></span>Constructor</h3>
+<p>InstructionToken(type, kernSym, ...argsArrray) :</p>
+<ol>
+<li>Let <code>kern</code> be a new instance of class <code>Kernelizer</code>.</li>
+<li>Let property <code>type</code> of <code>kern</code> be <code>type</code>.</li>
+<li>Let dynamic property <code>kernSym</code> of <code>kern</code> be Boolean <code>true</code>.</li>
+<li>Return <code>kern</code>.</li>
+</ol>
+</section>
+</section>
+<section id="sec-TokenLib" secid="6">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-TokenLib">6</a></span>TokenLib</h2>
+<p><code>TokenLib</code> is a class which creates and contains <code>InstructionToken</code> instances and marker Symbols.</p>
+<p><code>InstructionToken</code> instances are designed to safely encapsulate userspace data such as functions and their input operands, return/yield values, or no data. All <code>InstructionToken</code> instances are marked by having a special symbol assigned to them called <code>kernSym</code>; if <code>VirtualMachine</code> determines that an object has the symbol as a property, then it assumes that the object is an <code>InstructionToken</code> and attempts to process it.</p>
+<p>Each <code>InstructionToken</code> is a single&#8208;instance uniqueness type to reduce memory overhead, because all instances are gauranteed to be thread&#8208;safe and free of race conditions. Because the virtual machine executes in a single thread, each unique <code>InstructionToken</code> instance will be used atomically during a single <code>VirtualMachine</code> fetch&#8208;decode&#8208;execute cycle.</p>
+<section id="sec-Object-Methods" secid="6.1">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Object-Methods">6.1</a></span>Object Methods</h3>
+<section id="sec-isKernelized" secid="6.1.1">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-isKernelized">6.1.1</a></span>isKernelized</h4>
+<p>Returns a Boolean which indicates whether or not <code>input</code> is an Object instance of either the <code>InstructionToken</code> class or the <code>Kernelizer</code> class.</p>
+<div class="spec-algo" id="isKernelized()">
+<span class="spec-call"><a href="#isKernelized()" data-name="isKernelized">isKernelized</a>(<var data-name="input">input</var>)</span><ol>
+<li>Let <code>left</code> be the result of unary expression <code>typeof</code> with argument <code>input</code>.</li>
+<li>If <code>left</code> is strictly equal to String <code>object</code>, then<ol>
+<li>Let <code>right</code> be the result of searching for property Symbol <code>kernSym</code> in <code>input</code>.</li>
+<li>If <code>right</code> is strictly equal to Boolean <code>true</code>, then<ol>
+<li>Return Boolean <code>true</code>.</li>
+</ol>
+</li>
+<li>Else return Boolean <code>false</code>.</li>
+</ol>
+</li>
+<li>Else return Boolean <code>false</code>.</li>
+</ol>
+</div>
+</section>
+</section>
+<section id="sec-Object-Properties" secid="6.2">
+<h3><span class="spec-secid" title="link to this section"><a href="#sec-Object-Properties">6.2</a></span>Object Properties</h3>
+<section id="sec-tokens" secid="6.2.1">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-tokens">6.2.1</a></span>tokens</h4>
+<table>
+<thead><tr>
+<th>Name</th>
+<th>Arguments</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>loopYield</code> </td><td>None </td><td>Yield control flow to <code>VirtualMachine</code>.</td></tr>
+<tr>
+<td><code>call</code> </td><td>Array&lt; Function <code>functor</code>, Boolean <code>isTailCall</code> &gt; </td><td>Invoke a function.</td></tr>
+<tr>
+<td><code>callArgs</code> </td><td>Array&lt; Function <code>functor</code>, Array <code>args</code>, Boolean <code>isTailCall</code> &gt; </td><td>Invoke a function with arguments.</td></tr>
+<tr>
+<td><code>callMethod</code> </td><td>Array&lt; Object <code>object</code>, Any <code>property</code>, Boolean <code>isTailCall</code> &gt; </td><td>Invoke an Object method function.</td></tr>
+<tr>
+<td><code>callMethodArgs</code> </td><td>Object <code>object</code>, Any <code>property</code>, Array <code>args</code>, Boolean <code>isTailCall</code> &gt; </td><td>Invoke an Object method function with arguments.</td></tr>
+<tr>
+<td><code>new</code> </td><td>Array&lt; Function <code>functor</code> &gt; </td><td>Invoke a constructor.</td></tr>
+<tr>
+<td><code>newArgs</code> </td><td>Array&lt; Function <code>functor</code>, Array <code>args</code> &gt; </td><td>Invoke a constructor with arguments.</td></tr>
+<tr>
+<td><code>newMethod</code> </td><td>Array&lt; Object <code>object</code>, Any <code>property</code> &gt; </td><td>Invoke a constructor Object method function.</td></tr>
+<tr>
+<td><code>newMethodArgs</code> </td><td>Array&lt; Object <code>object</code>, Any <code>property</code>, Array <code>args</code> &gt; </td><td>Invoke a constructor Object method function with arguments.</td></tr>
+<tr>
+<td><code>spawn</code> </td><td>Array&lt; Function <code>functor</code> &gt; </td><td>Queue a coroutine for later execution.</td></tr>
+<tr>
+<td><code>spawnArgs</code> </td><td>Array&lt; Function <code>functor</code>, Array <code>args</code> &gt; </td><td>Queue a coroutine for later execution with arguments.</td></tr>
+<tr>
+<td><code>spawnMethod</code> </td><td>Array&lt; Object <code>object</code>, Any <code>property</code> &gt; </td><td>Queue an Object method coroutine for later execution.</td></tr>
+<tr>
+<td><code>spawnMethodArgs</code> </td><td>Array&lt; Object <code>object</code>, Any <code>property</code>, Array <code>args</code> &gt; </td><td>Queue an Object method coroutine for later execution with arguments.</td></tr>
+<tr>
+<td><code>return</code> </td><td>None </td><td>Perform a <code>return</code> statement.</td></tr>
+<tr>
+<td><code>returnValue</code> </td><td>Array&lt; Any <code>arg</code> &gt; </td><td>Perform a <code>return</code> statement with a value.</td></tr>
+<tr>
+<td><code>yield</code> </td><td>None </td><td>Perform a <code>yield</code> expression.</td></tr>
+<tr>
+<td><code>yieldValue</code> </td><td>Array&lt; Any <code>arg</code> &gt; </td><td>Perform a <code>yield</code> expression with a value.</td></tr>
+</tbody>
+</table>
+</section>
+<section id="sec-symbols" secid="6.2.2">
+<h4><span class="spec-secid" title="link to this section"><a href="#sec-symbols">6.2.2</a></span>symbols</h4>
+<table>
+<thead><tr>
+<th>Name</th>
+<th>Value</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>tokenSym</code> </td><td>Function </td><td>Is assigned to the userspace Function of a coroutine.</td></tr>
+<tr>
+<td><code>crtSym</code> </td><td>Any </td><td>Marks the function it is assigned to as being a coroutine.</td></tr>
+<tr>
+<td><code>conSym</code> </td><td>Any </td><td>Marks the function it is assigned to as being coroutine.</td></tr>
+<tr>
+<td><code>genSym</code> </td><td>Any </td><td>Marks the function it is assigned to as being generator.</td></tr>
+<tr>
+<td><code>iterSym</code> </td><td>Any </td><td>Marks the function it is assigned to as being assigned to an iterator interface object.</td></tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+<section id="sec-UserLib" secid="7">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-UserLib">7</a></span>UserLib</h2>
+</section>
+<section id="sec-VirtualMachine" secid="8">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-VirtualMachine">8</a></span>VirtualMachine</h2>
+<p>To facilitate the aforementioned instruction stream transformations while preserving normal JavaScript execution, the HertzScript virtual machine implements the behaviors indicated by the instruction set and executes the compiled source code. The HertzScript virtual machine is written in regular JavaScript and executes within the JavaScript virtual machine userspace.</p>
+<p>The HertzScript virtual machine consumes instruction tokens and performs the operations indicated by them. The HertzScript virtual machine changes how the JavaScript virtual machine call stack is utilized. When a new coroutine is started, a new Coroutine Control Block is created for it which contains a virtual call stack, and the HertzScript instruction set corresponds with operations which push and pop the coroutines in that stack. Only the currently executing coroutine will reside within the JavaScript VM call stack.</p>
 <p>The JavaScript VM call stack does not grow past the currently running coroutine except during function calls which were initiated by many of JavaScript&rsquo;s standard operators which are not the invocation operator, loosely limiting the VM call stack to a set length. The end result of this size reduction is that all coroutines are generally able to perform a context switch with <code>O(1)</code> time complexity, significantly reducing any possible jitter that would critically impact multitasking operation.</p>
 </section>
-<section id="sec-Dispatcher" secid="2.5">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Dispatcher">2.5</a></span>Dispatcher</h3>
+<section id="sec-Dispatcher" secid="9">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-Dispatcher">9</a></span>Dispatcher</h2>
 <p>The HertzScript dispatcher is a concurrency control system and preemptive multitasking kernel. The dispatcher is responsible for the supervision, scheduling, dispatchment, preemption, and context switching of multiple different HertzScript virtual machines within a single thread.</p>
 </section>
-<section id="sec-Programming-Environment" secid="2.6">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Programming-Environment">2.6</a></span>Programming Environment</h3>
+<section id="sec-Programming-Environment" secid="10">
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-Programming-Environment">10</a></span>Programming Environment</h2>
 <p>TBD </p>
 </section>
-</section>
-</article>
+<section id="index" secid="index" class="spec-index"><h1><span class="spec-secid" title="link to the index"><a href="#index">§</a></span>Index</h1><ol><li><a href="#isKernelized()">isKernelized</a></li></ol></section></article>
 <footer>
 Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</footer>
 <input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden>&#x2630;</label>
@@ -984,17 +1193,71 @@ Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</foo
 <li id="_sidebar_1.1"><a href="#sec-Overview-of-Components"><span class="spec-secid">1.1</span>Overview of Components</a></li>
 </ol>
 </li>
-<li id="_sidebar_2"><a href="#sec-Theory-of-Operation"><span class="spec-secid">2</span>Theory of Operation</a>
+<li id="_sidebar_2"><a href="#sec-Compiler"><span class="spec-secid">2</span>Compiler</a>
 <input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2" /><label for="_sidebar_toggle_2"></label>
 <ol>
-<li id="_sidebar_2.1"><a href="#sec-Compiler"><span class="spec-secid">2.1</span>Compiler</a></li>
-<li id="_sidebar_2.2"><a href="#sec-Function-Detours"><span class="spec-secid">2.2</span>Function Detours</a></li>
-<li id="_sidebar_2.3"><a href="#sec-Instruction-Tokens"><span class="spec-secid">2.3</span>Instruction Tokens</a></li>
-<li id="_sidebar_2.4"><a href="#sec-Virtual-Machine"><span class="spec-secid">2.4</span>Virtual Machine</a></li>
-<li id="_sidebar_2.5"><a href="#sec-Dispatcher"><span class="spec-secid">2.5</span>Dispatcher</a></li>
-<li id="_sidebar_2.6"><a href="#sec-Programming-Environment"><span class="spec-secid">2.6</span>Programming Environment</a></li>
+<li id="_sidebar_2.1"><a href="#sec-Transformation-Functions"><span class="spec-secid">2.1</span>Transformation Functions</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2.1" /><label for="_sidebar_toggle_2.1"></label>
+<ol>
+<li id="_sidebar_2.1.1"><a href="#sec-HzCoroutine"><span class="spec-secid">2.1.1</span>HzCoroutine</a></li>
 </ol>
 </li>
+<li id="_sidebar_2.2"><a href="#sec-Visitor-Functions"><span class="spec-secid">2.2</span>Visitor Functions</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2.2" /><label for="_sidebar_toggle_2.2"></label>
+<ol>
+<li id="_sidebar_2.2.1"><a href="#sec-CallExpression"><span class="spec-secid">2.2.1</span>CallExpression</a></li>
+</ol>
+</li>
+</ol>
+</li>
+<li id="_sidebar_3"><a href="#sec-DetourLib"><span class="spec-secid">3</span>DetourLib</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_3" /><label for="_sidebar_toggle_3"></label>
+<ol>
+<li id="_sidebar_3.1"><a href="#sec-Detour-Hooking-Functions"><span class="spec-secid">3.1</span>Detour Hooking Functions</a></li>
+</ol>
+</li>
+<li id="_sidebar_4"><a href="#sec-Kernelizer"><span class="spec-secid">4</span>Kernelizer</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_4" /><label for="_sidebar_toggle_4"></label>
+<ol>
+<li id="_sidebar_4.1"><a href="#sec-Kernelizer.Constructor"><span class="spec-secid">4.1</span>Constructor</a></li>
+<li id="_sidebar_4.2"><a href="#sec-Prototype-Methods"><span class="spec-secid">4.2</span>Prototype Methods</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_4.2" /><label for="_sidebar_toggle_4.2"></label>
+<ol>
+<li id="_sidebar_4.2.1"><a href="#sec-reset"><span class="spec-secid">4.2.1</span>reset</a></li>
+<li id="_sidebar_4.2.2"><a href="#sec-set"><span class="spec-secid">4.2.2</span>set</a></li>
+</ol>
+</li>
+</ol>
+</li>
+<li id="_sidebar_5"><a href="#sec-InstructionToken"><span class="spec-secid">5</span>InstructionToken</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_5" /><label for="_sidebar_toggle_5"></label>
+<ol>
+<li id="_sidebar_5.1"><a href="#sec-InstructionToken.Constructor"><span class="spec-secid">5.1</span>Constructor</a></li>
+</ol>
+</li>
+<li id="_sidebar_6"><a href="#sec-TokenLib"><span class="spec-secid">6</span>TokenLib</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_6" /><label for="_sidebar_toggle_6"></label>
+<ol>
+<li id="_sidebar_6.1"><a href="#sec-Object-Methods"><span class="spec-secid">6.1</span>Object Methods</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_6.1" /><label for="_sidebar_toggle_6.1"></label>
+<ol>
+<li id="_sidebar_6.1.1"><a href="#sec-isKernelized"><span class="spec-secid">6.1.1</span>isKernelized</a></li>
+</ol>
+</li>
+<li id="_sidebar_6.2"><a href="#sec-Object-Properties"><span class="spec-secid">6.2</span>Object Properties</a>
+<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_6.2" /><label for="_sidebar_toggle_6.2"></label>
+<ol>
+<li id="_sidebar_6.2.1"><a href="#sec-tokens"><span class="spec-secid">6.2.1</span>tokens</a></li>
+<li id="_sidebar_6.2.2"><a href="#sec-symbols"><span class="spec-secid">6.2.2</span>symbols</a></li>
+</ol>
+</li>
+</ol>
+</li>
+<li id="_sidebar_7"><a href="#sec-UserLib"><span class="spec-secid">7</span>UserLib</a></li>
+<li id="_sidebar_8"><a href="#sec-VirtualMachine"><span class="spec-secid">8</span>VirtualMachine</a></li>
+<li id="_sidebar_9"><a href="#sec-Dispatcher"><span class="spec-secid">9</span>Dispatcher</a></li>
+<li id="_sidebar_10"><a href="#sec-Programming-Environment"><span class="spec-secid">10</span>Programming Environment</a></li>
+<li id="_sidebar_index"><a href="#index"><span class="spec-secid">§</span>Index</a></li>
 </ol>
 </div>
 <script>(function(){for(var e,t=[],n=document.getElementsByTagName("section"),o=0;o<n.length;o++)n[o].getAttribute("secid")&&t.push(n[o]);var i=window.scrollY,r=!1;function c(n){for(var o,i=n+document.documentElement.clientHeight/4,r=t.length-1;r>=0;r--)if(t[r].offsetTop<i){o=t[r];break}var c=o&&o.getAttribute("secid");c!==e&&(e&&d(e,!1),c&&d(c,!0),e=c)}function d(e,t){document.getElementById("_sidebar_"+e).className=t?"viewing":"";for(var n=e.split(".");n.length;){var o=document.getElementById("_sidebar_toggle_"+n.join("."));o&&(o.checked=t),n.pop()}}window.addEventListener("scroll",(function(e){i=window.scrollY,r||(r=!0,window.requestAnimationFrame((function(){c(i),r=!1})))})),c(window.scrollY);})()</script>
