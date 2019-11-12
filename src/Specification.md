@@ -30,6 +30,84 @@ HertzScript is composed of layered abstracting and interoperating systems includ
 	}
 )
 
+# Literal Value Data Types
+
+## Notational Conventions
+
+Specific conventions for the notation of typed literal values are defined here and are used throughout this specification. Some special characters indicated within this section are Markdown terminal characters.
+
+Notating a literal value with a specific data type may require the prefixing and/or postfixing of specific characters.
+
+When contributing to this specification's Markdown documents via a text editor, each reference to a literal value requires grave accents to be the outermost prefix and postfix: \` (`U+0060`)
+
+The below table illustrates the following for each data type:
+
+- The name of the data type.
+- Special characters and their Unicode charcodes in parentheses.
+- The positions where the special characters should be relative to the notation of the value.
+- An unformatted Markdown example which a reader would observe in a plain-text editor.
+- A formatted example which a reader would observe when viewing the rendered distribution of this specification.
+
+Type|Characters|Position of Characters|Unformatted Example|Formatted Example
+---------------------------------------------------------------------------------------------------
+Object | Percent Sign: `%` (`U+0025`) | Prefix & Postfix | \`%name%\` | `%name%`
+Symbol | Commercial At: `@` (`U+0040`) | Prefix | \`@name\` | `@name`
+`TokenLib` Symbol | 2x Commercial At: `@@` (`U+0040`) | Prefix | \`@@name\` | `@@name`
+String | Quotation Mark: `"` (`U+0022`) | Prefix & Postfix | \`"string"\` | `"string"`
+Boolean | None | None | \`true\` | `true`
+Integer | None | None | \`123\` | `123`
+Float | Full Stop: `.` (`U+002E`) | Anywhere | \`12.34\` | `12.34`
+Negative Integer | Minus Sign: `-` (`U+2212`) | Prefix | \`-123\` | `-123`
+Negative Float | Minus Sign: `-` (`U+2212`) | Prefix | \`-12.34\` | `-12.34`
+Null | None | None | \`null\` | `null`
+Undefined | None | None | \`undefined\` | `undefined`
+
+### Object
+
+Objects are logical collections of properties. Each property associates a key value with an arbitrary value.
+
+Property key values can be used to access or assign properties and their associated arbitrary values.
+
+Objects must be both prefixed and postfixed by percent signs.
+
+### Symbol
+
+Symbols are uniqueness types, meaning every symbol is immutable and unique. Symbols are used as dynamic property keys for Objects.
+
+Symbols are prefixed by a single "commercial at" characer.
+
+A Symbol that is created by and is a member of [`TokenLib.symbols`](#sec-TokenLib) is prefixed by two "commercial at" characters.
+
+### String
+
+Strings are finite ordered sequences of zero or more 16-bit unsigned integer values.
+
+Strings must be both prefixed and postfixed by quotation marks.
+
+### Boolean
+
+Booleans must be equal to one of two different values: `true` or `false`.
+
+### Integer
+
+Integers are whole numbers represented by double-precision 64-bit binary format IEEE 754-2008 values.
+
+Integers which are negative must be notated with a minus sign prefix. Integers which both non-terminating and infinitely large must be notated with `Infinity`, or `-Infinity` for negative numbers.
+
+### Float
+
+Floats are non-whole numbers which are represented by double-precision 64-bit binary format IEEE 754-2008 values.
+
+Floats which are negative must be notated with a minus sign prefix.
+
+### Null
+
+`null` is unchangeable and is always equal to `null`.
+
+### Undefined
+
+`undefined` is unchangeable and is always equal to `undefined`.
+
 # Compiler
 
 The HertzScript compiler transforms function calls into yielded instances of `InstructionToken` such that all transformed function calls are made in reverse upon script execution.
@@ -102,7 +180,7 @@ Strings given as an argument list to the constructor indicate the labels of argu
 Assigns undefined to all properties ordered via an argument list of Strings spread to Array `argsArray`.
 
 Kernelizer(...argsArrray) :
-1. Let property `argSlots` of `this` be `argsArray`.
+1. Let value of property `argSlots` of `this` be `argsArray`.
 1. Invoke `this.reset()`.
 
 ## Prototype Methods
@@ -112,10 +190,10 @@ Kernelizer(...argsArrray) :
 Assigns an arbitrary value `resetValue` to all properties ordered via Strings in Array `this.argSlots`.
 
 Kernelizer.prototype.reset(resetValue) :
-1. If `this.argSlots.length` is strictly equal to Number `0`, then
+1. If `this.argSlots.length` is strictly equal to `0`, then
   * Return `this`.
 1. For each `argName` of Array `this.argSlots`, do
-  * Let dynamic property `argName` of `this` be `resetValue`.
+  * Let value of dynamic property `argName` of `this` be `resetValue`.
 1. Return `this`.
 
 
@@ -124,14 +202,14 @@ Kernelizer.prototype.reset(resetValue) :
 Assigns arbitrary values in Array `argsArray` to properties ordered via Strings in Array `this.argSlots`
 
 Kernelizer.prototype.set(argsArray) :
-1. If `this.argSlots.length` is strictly equal to Number `0`, then
+1. If `this.argSlots.length` is strictly equal to `0`, then
   * Return `this`.
-  * Let `loc` be Number `0`.
+  * Let `loc` be `0`.
 1. For each `argName` of `this.argSlots`, do
   * If Number `loc` is less than or equal to Number `argsArray.length`, then
-     * Let dynamic property `argName` of `this` be the value of dynamic property `loc` of `argsArray`.
-  * Else let dynamic property `argName` of `this` be undefined.
-  * Increment Number `loc` by Number `1`.
+     * Let value of dynamic property `argName` of `this` be the value of dynamic property `loc` of `argsArray`.
+  * Else let value of dynamic property `argName` of `this` be undefined.
+  * Increment Number `loc` by `1`.
 1. Return `this`.
 
 # InstructionToken
@@ -142,8 +220,8 @@ The `InstructionToken` class extends the `Kernelizer` class by assigning String 
 
 InstructionToken(type, kernSym, ...argsArrray) :
 1. Let `kern` be a new instance of class `Kernelizer`.
-1. Let property `type` of `kern` be `type`.
-1. Let dynamic property `kernSym` of `kern` be Boolean `true`.
+1. Let value of property `type` of `kern` be `type`.
+1. Let value of dynamic property `kernSym` of `kern` be `true`.
 1. Return `kern`.
 
 # TokenLib
@@ -161,12 +239,8 @@ Each `InstructionToken` is a single-instance uniqueness type to reduce memory ov
 Returns a Boolean which indicates whether or not `input` is an Object instance of either the `InstructionToken` class or the `Kernelizer` class.
 
 isKernelized(input) :
-1. Let `left` be the result of unary expression `typeof` with argument `input`.
-1. If `left` is strictly equal to String `object`, then
-  * Let `right` be the result of searching for property Symbol `kernSym` in `input`.
-  * If `right` is strictly equal to Boolean `true`, then
-    * Return Boolean `true`.
-  * Else return Boolean `false`.
+1. If the result of unary expression `typeof` with argument `input` is strictly equal to `"object"`, then
+  * Return the result of searching for property `@@kernSym` in `input`.
 1. Else return Boolean `false`.
 
 ## Object Properties
