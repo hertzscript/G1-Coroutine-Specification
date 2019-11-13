@@ -2,18 +2,18 @@
 
 This specification describes the requirements and business logic of the HertzScript coroutine systems.
 
-View the specification here: 
+[Click here to view the specification.](http://hzscript.io/dist/Specification.html)
 
-# Reference Systems
+# Reference Systems & Supporting Technologies
 
 - [HertzScript Compiler](https://github.com/hertzscript/Compiler)
+	- [Babel](https://babeljs.io/)
+	- [Acorn](https://github.com/acornjs/acorn)
+	- [marktail](https://github.com/Floofies/marktail)
 - [HertzScript Virtual Machine](https://github.com/hertzscript/VirtualMachine)
 - [HertzScript Multitasking Dispatcher](https://github.com/hertzscript/Dispatcher)
 - [HertzScript Multiprocessing Isolate](https://github.com/hertzscript/Isolate)
 - [HertzScript Programming Environment](https://github.com/hertzscript/Environment)
-- [Babel](https://babeljs.io/)
-- [Acorn](https://github.com/acornjs/acorn)
-- [marktail](https://github.com/Floofies/marktail)
 
 # Project Objective
 
