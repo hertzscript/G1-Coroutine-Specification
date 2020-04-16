@@ -145,13 +145,39 @@ The second stage consists of Babel and a Babel transformation plugin which is us
 
 # VirtualMachine
 
-The `VirtualMachine` class sequentially executes a single `InstructionToken` stream as a SISD computer processor architecture, and implements computational behaviors as indicated by each `InstructionToken`. `VirtualMachine` may consume both `InstructionToken` Object instances and context-sensitive data.
+The `VirtualMachine` class sequentially executes a single `InstructionToken` stream originating from a coroutine, and implements computational behaviors as indicated by each `InstructionToken`. `VirtualMachine` may consume both `InstructionToken` Object instances and context-sensitive data.
+
+Most behaviors and Functions within `VirtualMachine` are managed and executed by an `AspectWeaver` class instance.
 
 `VirtualMachine` changes how the JavaScript virtual machine call stack is utilized. When a new coroutine is started, a new `ControlBlock` class instance is created for it which contains a virtual call stack, and the HertzScript instruction set corresponds with operations which push and pop the coroutines in that stack. Only the currently executing coroutine will reside within the JavaScript VM call stack. The JavaScript VM call stack does not grow past the currently running coroutine except during function calls which were initiated by many of JavaScript's standard operators which are not the invocation operator, loosely limiting the VM call stack to a set length. The end result of this size reduction is that all coroutines are generally able to perform a context switch with `O(1)` time complexity, significantly reducing any possible jitter that would critically impact multitasking operations.
 
+## Error Handling
+
+
+
 ## Execution Cycle
 
-The core execution cycle is called the Fetch-Coerce-Execute cycle, or FCE cycle. The FCE cycle's programming style and construction is that of Aspect-Oriented Programming. The FCE Functions are `FetchInstruction`, `CoerceInstruction`, and `ExecuteInstruction`; the `VirtualMachine` constructor submits the three FCE Functions to an `AspectWeaver` instance. The `AspectWeaver` instance is given three Pointcuts labaled with the Strings `"fetch"`, `"coerce"`, and `"execute"`. The labeled Pointcuts expose six Joinpoints in total, such that Functions may be added or removed at six logical points in the control flow before or after each of the three FCE Functions.
+The core execution cycle is called the Fetch-Coerce-Execute cycle, or FCE cycle. The FCE cycle's programming style and construction is that of Aspect-Oriented Programming. The FCE Functions are `cycle`, `fetchInstruction`, `coerceInstruction`, and `executeInstruction`; the `VirtualMachine` constructor submits the three FCE Functions to an `AspectWeaver` instance. The `AspectWeaver` instance is given three Pointcuts labaled with the Strings `"fetch"`, `"coerce"`, and `"execute"`. The labeled Pointcuts expose six Joinpoints in total, such that Functions may be added or removed at six logical points in the control flow before or after each of the three FCE Functions.
+
+![Component Diagram](http://g.gravizo.com/svg?
+	digraph Components {
+		cycle [shape=circle];
+		fetchInstruction [shape=box];
+		coerceInstruction [shape=box];
+		executeInstruction [shape=box];
+		cycle -> fetchInstruction;
+		fetchInstruction -> coerceInstruction;
+		coerceInstruction -> executeInstruction;
+		executeInstruction -> cycle;
+		{
+			rank=same; fetchInstruction executeInstruction
+		}
+	}
+)
+
+## Preemption
+
+`VirtualMachine` is able to interrupt a coroutine which has been compiled by the HertzScript Compiler. Preemption may be performed within `cycle` before each FCE cycle or via adding a Function after the `execute` Joinpoint or before the `cycle` Joinpoint.
 
 ## Constructor
 
@@ -179,15 +205,28 @@ VirtualMachine(uTokenLib = null) :
   * Let `instructions.cycleAsync` be `this._cycleAsync`.
 1. Let `this.weaver` be a new instance of class `AspectWeaver` with arguments `this` and `instructions`.
 
+## Prototype Members
+
+### executors
+
+## Prototype Methods
+
+### fetchInstruction
+
+
+
+### foerceInstruction
+
+
+
+### executeInstruction
+
+
+
 ## AspectWeaver
 
 The `AspectWeaver` class is an Aspect-oriented program control system which is designed to allow the sequential execution, addition, mutation, and removal of Functions during run-time. Points at which functions may be added or removed are called Joinpoints, whereas the problem domains which Joinpoints implement are called Pointcuts.
 
-
-
-## Execution Cycle
-
-The `VirtualMachine` constructor creates a new instance the `AspectWeaver` class and populates it with three distinct Pointcuts: Fetch, Coerce, and Execute.
 
 ## DetourLib
 
@@ -279,7 +318,7 @@ The `InstructionToken` class extends the `Kernelizer` class by assigning String 
 
 InstructionToken(type, kernSym, ...argsArrray) :
 1. Let `kern` be a new instance of class `Kernelizer`.
-1. Let value of property `type` of `kern` be `type`.
+1. Let `kern.type` be `type`.
 1. Let value of dynamic property `kernSym` of `kern` be `true`.
 1. Return `kern`.
 
@@ -298,9 +337,9 @@ Each `InstructionToken` is a single-instance uniqueness type to reduce memory ov
 Returns a Boolean which indicates whether or not `input` is an Object instance of either the `InstructionToken` class or the `Kernelizer` class.
 
 isKernelized(input) :
-1. If the result of unary expression `typeof` with argument `input` is strictly equal to `"object"`, then
-  * Return the result of searching for property `@@kernSym` in `input`.
-1. Else return Boolean `false`.
+1. If the data type of `input` is Object, then
+  * If dynamic property `@@kernSym` exists within `input`, return `true`.
+1. Else return `false`.
 
 ### Object Properties
 
